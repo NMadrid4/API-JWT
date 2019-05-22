@@ -12,6 +12,8 @@ app.use(bodyparser.urlencoded({
 var fatherScheme = mongo.Schema({
     dni: {
         type: String,
+        index: true,
+        unique: true,
         required: [true, "Se necesita un dni"],
         minlength: [8, "Se necesita un dni Correcto"],
         maxlength: [8, 'Se necesita un dni Correcto'],
@@ -25,7 +27,7 @@ var fatherScheme = mongo.Schema({
 
 var father = mongo.model('father', fatherScheme);
 
-mongo.connect("mongodb://localhost/Test", {useNewUrlParser: true}, (err) => {
+mongo.connect("mongodb://localhost/Test2", {useNewUrlParser: true}, (err) => {
     err ? console.log("no se pudo conectar") :  console.log("conectado")
 })
 
@@ -35,12 +37,18 @@ app.post('/api/father', (req, res) => {
     newFather.password = req.body.password
     newFather.save((err) => {
         if (err) {
-            if (err.errors["dni"]) {
-                return res.status(400).json({"message": err.errors["dni"]["message"]})
-            }else if (err.errors["password"]) {
-                return res.status(400).json({"message": err.errors["password"]["message"]})
-            }else {
-                res.status(500).json({message: 'error interno'})
+            console.log(err)
+            // return res.json({err})
+            if (err.name == 'ValidationError') {
+                if (typeof err.errors["dni"] != 'undefined') {
+                    return res.status(400).json({"message": err.errors["dni"]["message"]})
+                }else if (typeof err.errors["password"] != 'undefined') {
+                    return res.status(400).json({"message": err.errors["password"]["message"]})
+                }else  {
+                    res.status(500).json({message: 'error interno'})
+                }
+            }else if(err.code === 11000) {
+                return res.status(400).json({"message": "El usuario ya se ha registrado anteriormente"})
             }
         }
         res.status(200).json({"message": "Registro exitoso"}) 
