@@ -3,49 +3,18 @@ const jwt = require('jsonwebtoken');
 const mongo = require('mongoose');
 const bodyparser = require('body-parser');
 const config = require('./config');
+const Father = require('./app/models/father')
+const son = require('./app/models/son')
 const app = express();
 app.use(bodyparser.json())
 app.use(bodyparser.urlencoded({extended: false})); 
-
-var fatherScheme = mongo.Schema({
-    dni: {
-        type: String,
-        index: true,
-        unique: true,
-        required:  "Se necesita un dni",
-        minlength: [8, "Se necesita un dni Correcto"],
-        maxlength: [8, 'Se necesita un dni Correcto'],
-    },
-    password: {
-        type: String,
-        required: [true, "Se necesita password"],
-    }
-})
-
-var sonScheme = mongo.Schema({
-    name: {
-        type: String,
-        required: "Se necesita un nombre",
-    },
-    grade: {
-        type: String,
-        required: "Se necesita un grado de instrucción",
-    },
-    idFather: {
-        type: String,
-        required: "Se necesita un padre",
-    }
-})
-
-var son = mongo.model('son', sonScheme);
-var father = mongo.model('father', fatherScheme);
 
 mongo.connect(config.database, {useNewUrlParser: true}, (err) => {
     err ? console.log("no se pudo conectar") :  console.log("conectado")
 })
 
 app.post('/api/father', (req, res) => {
-    var newFather = new father();
+    var newFather = new Father();
     newFather.dni = req.body.dni
     newFather.password = req.body.password
     newFather.save((err) => {
@@ -66,7 +35,7 @@ app.post('/api/father', (req, res) => {
         res.status(200).json({"message": "Registro exitoso"}) 
     })
 }).get('/api/father', (req, res) => {
-    father.find((err, result) => {
+    Father.find((err, result) => {
         if (err) {
             return res.sendStatus(500);
         }
@@ -75,15 +44,14 @@ app.post('/api/father', (req, res) => {
 })
 
 app.post('/api/login', (req, res) => {
-    var newFather = new father();
+    var newFather = new Father();
     newFather.dni = req.body.dni
     newFather.password = req.body.password
-    father.findOne({dni: newFather.dni, password: newFather.password}, (err, result) => {
+    Father.findOne({dni: newFather.dni, password: newFather.password}, (err, result) => {
         if (err) {
             res.sendStatus(500);
         }else {
             if (result != null) {
-                
                 const token = jwt.sign({result}, config.secret);
                 res.status(200).json({"token": token})
             } else {
@@ -107,7 +75,6 @@ app.get('/api/categories', ensureToken,(req,res) => {
 })
 
 //SON REQUEST
-
 app.post('/api/son', (req, res) => {
     var newSon = new son();
     newSon.name = req.body.name
