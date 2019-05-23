@@ -25,11 +25,11 @@ app.post('/api/father', (req, res) => {
                     return res.status(400).json({"message": err.errors.dni.message})
                 }else if (typeof err.errors.password != 'undefined') {
                     return res.status(400).json({"message": err.errors.password.message})
-                }else  {
-                    res.status(500).json({message: 'error interno'})
                 }
             }else if(err.code === 11000) {
                 return res.status(400).json({"message": "El usuario ya se ha registrado anteriormente"})
+            }else  {
+                res.status(500).json({message: 'error interno'})
             }
         }
         res.status(200).json({"message": "Registro exitoso"}) 
@@ -53,7 +53,7 @@ app.post('/api/login', (req, res) => {
         }else {
             if (result != null) {
                 const token = jwt.sign({result}, config.secret);
-                res.status(200).json({"token": token})
+                res.status(200).json({token})
             } else {
                 res.status(400).json({ mensaje: 'Login incorrecto'});
             }
