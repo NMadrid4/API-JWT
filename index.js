@@ -70,7 +70,6 @@ app.post('/api/father', (req, res) => {
         if (err) {
             return res.sendStatus(500);
         }
-
         res.status(200).json(result);
     })
 })
@@ -84,13 +83,14 @@ app.post('/api/login', (req, res) => {
             res.sendStatus(500);
         }else {
             if (result != null) {
+                
                 const token = jwt.sign({result}, config.secret);
                 res.status(200).json({"token": token})
             } else {
                 res.status(400).json({ mensaje: 'Login incorrecto'});
             }
         }
-    })
+    }).select(["_id","dni"]) 
 }) 
 
 app.get('/api/categories', ensureToken,(req,res) => {
