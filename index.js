@@ -33,7 +33,7 @@ var sonScheme = mongo.Schema({
     },
     idFather: {
         type: String,
-        require: "Se necesita un padre",
+        required: "Se necesita un padre",
     }
 })
 
@@ -96,7 +96,7 @@ app.post('/api/login', (req, res) => {
 app.get('/api/categories', ensureToken,(req,res) => {
     jwt.verify(req.token, config.secret, (err, data) => {
         if(err) {
-            res.status(403).json({"message": "no aturoziado"})
+            res.status(403).json({"message": config.authorizationError})
         }else {
             res.json({
                 text: 'acceso a texto protegido'
@@ -114,15 +114,44 @@ app.post('/api/son', (req, res) => {
     newSon.grade = req.body.grade
     newSon.idFather = req.body.idFather
     newSon.save((err) => {
-        if(err) {
-            return res.status(400).json(err);
+        if (err) {
+            console.log(err)
+            if (err.name == 'ValidationError') {
+                if (typeof err.errors.name != 'undefined') {
+                    return res.status(400).json({"message": err.errors.name.message})
+                }else if (typeof err.errors.grade != 'undefined') {
+                    return res.status(400).json({"message": err.errors.grade.message})
+                }else if (typeof err.errors.idFather != 'undefined') {
+                    return res.status(400).json({"message": err.errors.idFather.message})
+                }else  {
+                    return res.status(500).json({message: 'error interno'})
+                }
+            }
         }
-        res.status(200).json("Registro exitoso");
+        res.status(200).json({"message": "Registro exitoso"});
     })
 
+}).get('/api/son', ensureToken, (req, res) => {
+    //comparar header token con el jwt generado
+    jwt.verify((req.token), config.secret, (err) => {
+        if (err) {
+            return res.status(403).json({"message": config.authorizationError})
+        }
+        var idFather = req.query.idFather;
+        if (typeof idFather != 'undefined') {
+            son.find({idFather: idFather}, (err, hijos) => {
+                if (err) {
+                    return res.status(500).json({message: 'error interno'})
+                }
+                res.status(200).json({hijos})
+            })
+        }else{
+            return res.status(400).json({message: 'Debe ingresar el id del padre'})
+        }
+    })    
 })
 
-
+//verifica que se esta mandando un authorization  header
 function ensureToken(req, res, next) {
     const bearerHeader = req.headers['authorization'];
     console.log(bearerHeader);
@@ -132,7 +161,7 @@ function ensureToken(req, res, next) {
         req.token = bearerToken;
         next();
     }else { 
-        res.status(403).json({message: 'no autorizado'})
+        res.status(403).json({message: config.authorizationError})
     }
 }
 
