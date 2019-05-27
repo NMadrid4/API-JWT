@@ -14,6 +14,10 @@ mongo.connect(config.database, {useNewUrlParser: true}, (err) => {
     err ? console.log("no se pudo conectar") :  console.log("conectado")
 })
 
+app.get('/', (req, res) => {
+    res.status(200).send("Conectado")
+})
+
 app.post('/api/father', (req, res) => {
     var newFather = new Father();
     newFather.dni = req.body.dni
