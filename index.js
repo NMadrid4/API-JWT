@@ -5,6 +5,7 @@ const bodyparser = require('body-parser');
 const config = require('./config');
 const Father = require('./app/models/father')
 const son = require('./app/models/son')
+
 const app = express();
 app.use(bodyparser.json())
 app.use(bodyparser.urlencoded({extended: false})); 

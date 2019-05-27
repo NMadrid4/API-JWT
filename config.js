@@ -1,5 +1,5 @@
 module.exports = {
     'secret': 'secret_token',
     'authorizationError': 'No autorizado',
-    'database': 'mongodb://localhost/Test2'
+    'database':  process.env.MONGODB_URI || 'mongodb://localhost/Test2'
 }
