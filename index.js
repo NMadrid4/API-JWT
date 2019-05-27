@@ -11,7 +11,7 @@ app.use(bodyparser.json())
 app.use(bodyparser.urlencoded({extended: false})); 
 
 mongo.connect(config.database, {useNewUrlParser: true}, (err) => {
-    err ? console.log("no se pudo conectar") :  console.log("conectado")
+    err ? console.log("no se pudo conectar" + err) :  console.log("conectado")
 })
 
 app.get('/', (req, res) => {
