@@ -9,8 +9,14 @@ var horarySchema = mongo.Schema({
     idGrade: {
         type: String,
         required: "Se necesita un id grado",
+        index: true,
+        unique: true,
     },
-    days: [daysSchema]
+    days: {
+        type: [daysSchema],
+        required: "Se requiere al menos un día de estudio",
+        validate: [(value) => value.length > 0, 'Se requiere al menos un día de estudio'],
+    }, 
 })
 
 

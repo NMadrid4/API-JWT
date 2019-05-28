@@ -7,7 +7,11 @@ var daysSchema = mongo.Schema({
         type: String,
         required: "Se necesita un dia",
     },
-    coursesOnDay: [coursesOnDaySchema]
+    coursesOnDay:{
+        type: [coursesOnDaySchema],
+        validate: [(value) => value.length > 0, 'Se requiere al menos un curso por día'],
+    }
+    
 })
 
 module.exports = mongo.model('days', daysSchema)

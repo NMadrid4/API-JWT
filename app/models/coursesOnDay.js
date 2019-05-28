@@ -1,6 +1,7 @@
 
 const mongo = require('mongoose');
 
+
 var coursesOnDaySchema = mongo.Schema({
     idCourse: {
         type: String,

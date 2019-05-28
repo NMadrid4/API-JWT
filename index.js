@@ -39,9 +39,10 @@ app.get('/api/horary', (req, res) => {
     })
 }).post('/api/horary', (req, res) => {
     var myData = new horary(req.body);
+    console.log(req.body)
     myData.save((err) => {
         if(err) {
-            res.json({mensaje: "error al registrar"})
+            res.json(err)
             return
         }
             res.json({mensaje: "registro"})
