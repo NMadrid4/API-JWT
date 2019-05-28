@@ -22,12 +22,21 @@ app.get('/', (req, res) => {
 })
 
 app.get('/api/horary', (req, res) => {
-    horary.find({}, (err, result) => {
-        res.json(result)
-    })
-    // horary.findOne({idGrade: req.query.idGrade}, (err, result) => {
+    // horary.find({}, (err, result) => {
     //     res.json(result)
     // })
+    horary.findOne({idGrade: req.query.idGrade}, (err, result) => {
+        if (err) {
+            res.sendStatus(500);
+        }else {
+            if (result != null) {
+                res.status(200).json(result)
+            } else {
+                res.status(400).json({mensaje: 'No se encontro nigún horario'});
+            }
+        }
+
+    })
 }).post('/api/horary', (req, res) => {
     var myData = new horary(req.body);
     myData.save((err) => {
@@ -40,31 +49,6 @@ app.get('/api/horary', (req, res) => {
     })
     
 })
-
-
-// newHorary.save((err) => {
-//     if(err) {
-//         res.json(err)
-//         return
-//     }
-
-//     res.json({mensaje: "registro"})
-
-
-
-
-    
-    // var newHorary = new horary();
-    // newHorary.idGrade = req.body.idGrade
-    // newHorary.save((err) => {
-    //     if (err) {
-    //         res.json(err)
-    //         return
-    //     }
-
-    //     res.json({mensaje: "registro"})
-    // })
-
 
 app.post('/api/father', (req, res) => {
     var newFather = new Father();
@@ -189,19 +173,3 @@ app.set('port', process.env.PORT || 3000);
 app.listen(app.get('port'), () => {
     console.log('Sever on port', app.get('port'))
 })
-
-
-// for (var key in req.body.coursesDay) {
-//     var coursesDay = new coursesDay()
-//     coursesDay.idCourse = req.body[key].idCourse
-//     coursesDay.start = req.body[key].start
-//     coursesDay.end = req.body[key].end
-//     coursesDay.save(function (err, resultado) {
-//         if (err) {
-//             console.log("ERR " + err);
-//         } else {
-//             newDays.coursesOnDay.push(resultado)
-//             console.log("REGISTER " + resultado);
-//         }
-//     });
-// }
