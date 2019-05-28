@@ -1,10 +1,13 @@
-const express = require('express');
-const jwt = require('jsonwebtoken');
-const mongo = require('mongoose');
-const bodyparser = require('body-parser');
-const config = require('./config');
+const express = require('express')
+const jwt = require('jsonwebtoken')
+const mongo = require('mongoose')
+const bodyparser = require('body-parser')
+const config = require('./config')
 const Father = require('./app/models/father')
 const son = require('./app/models/son')
+const horary = require('./app/models/horary')
+const days = require('./app/models/days')
+const coursesDay = require('./app/models/coursesOnDay')
 
 const app = express();
 app.use(bodyparser.json())
@@ -17,6 +20,51 @@ mongo.connect(config.database, {useNewUrlParser: true}, (err) => {
 app.get('/', (req, res) => {
     res.status(200).send("Conectado")
 })
+
+app.get('/api/horary', (req, res) => {
+    horary.find({}, (err, result) => {
+        res.json(result)
+    })
+    // horary.findOne({idGrade: req.query.idGrade}, (err, result) => {
+    //     res.json(result)
+    // })
+}).post('/api/horary', (req, res) => {
+    var myData = new horary(req.body);
+    myData.save((err) => {
+        if(err) {
+            res.json({mensaje: "error al registrar"})
+            return
+        }
+            res.json({mensaje: "registro"})
+
+    })
+    
+})
+
+
+// newHorary.save((err) => {
+//     if(err) {
+//         res.json(err)
+//         return
+//     }
+
+//     res.json({mensaje: "registro"})
+
+
+
+
+    
+    // var newHorary = new horary();
+    // newHorary.idGrade = req.body.idGrade
+    // newHorary.save((err) => {
+    //     if (err) {
+    //         res.json(err)
+    //         return
+    //     }
+
+    //     res.json({mensaje: "registro"})
+    // })
+
 
 app.post('/api/father', (req, res) => {
     var newFather = new Father();
@@ -141,3 +189,19 @@ app.set('port', process.env.PORT || 3000);
 app.listen(app.get('port'), () => {
     console.log('Sever on port', app.get('port'))
 })
+
+
+// for (var key in req.body.coursesDay) {
+//     var coursesDay = new coursesDay()
+//     coursesDay.idCourse = req.body[key].idCourse
+//     coursesDay.start = req.body[key].start
+//     coursesDay.end = req.body[key].end
+//     coursesDay.save(function (err, resultado) {
+//         if (err) {
+//             console.log("ERR " + err);
+//         } else {
+//             newDays.coursesOnDay.push(resultado)
+//             console.log("REGISTER " + resultado);
+//         }
+//     });
+// }
