@@ -8,10 +8,9 @@ const son = require('./app/models/son')
 const horary = require('./app/models/horary')
 const days = require('./app/models/days')
 const coursesDay = require('./app/models/coursesOnDay')
-
-const app = express();
+const app = express()
 app.use(bodyparser.json())
-app.use(bodyparser.urlencoded({extended: false})); 
+app.use(bodyparser.urlencoded({extended: false})) 
 
 mongo.connect(config.database, {useNewUrlParser: true}, (err) => {
     err ? console.log("no se pudo conectar" + err) :  console.log("conectado")
@@ -27,8 +26,7 @@ app.get('/api/horary', (req, res) => {
     // })
     horary.findOne({idGrade: req.query.idGrade}, (err, result) => {
         if (err) {
-            
-            res.sendStatus(500);
+            return res.sendStatus(500);
         }else {
             if (result != null) {
                 res.status(200).json(result)
@@ -42,55 +40,33 @@ app.get('/api/horary', (req, res) => {
     var myData = new horary(req.body);
     console.log(req.body)
     myData.save().then(() => {
-        res.json({mensaje: "registro"})
+        res.json({mensaje: "Registro exitoso"})
     }).catch((err) => {
         if (err.errors != null) {
             const message = err.errors[Object.keys(err.errors)[0]]
-            res.json({message: message[Object.keys(message)[0]]})
-        }else {
-            res.status(500).json({message: "Error al registrar"})
+            res.status(200).json({message: message[Object.keys(message)[0]]})
+            return
         }
-        
-    })
-   
-    
+        res.status(500).json({message: "Error al registrar"})
+    })    
 })
-
-
-// myData.save((err) => {
-//     if(err) {
-//         var keySaved = ""
-//         for (var key in err.errors) {
-//             keySaved = key
-//         } 
-//         console.log(keySaved)
-//         console.log(err.errors.days)
-//         return
-//     }
-//         res.json({mensaje: "registro"})
-
-// })
 
 app.post('/api/father', (req, res) => {
     var newFather = new Father();
     newFather.dni = req.body.dni
     newFather.password = req.body.password
-    newFather.save((err) => {
-        if (err) {
-            console.log(err)
-            if (err.name == 'ValidationError') {
-                if (typeof err.errors.dni != 'undefined') {
-                    return res.status(400).json({"message": err.errors.dni.message})
-                }else if (typeof err.errors.password != 'undefined') {
-                    return res.status(400).json({"message": err.errors.password.message})
-                }
-            }else if(err.code === 11000) {
-                return res.status(400).json({"message": "El usuario ya se ha registrado anteriormente"})
-            }else  {
-                res.status(500).json({message: 'error interno'})
-            }
+    newFather.save().then(() => {
+        res.json({mensaje: "Registro exitoso"})
+    }).catch((err) => {
+        if (err.code === 11000) {
+            return res.status(500).send({ succes: false, message: 'El usuario ya se ha registrado anteriormente' });
         }
-        res.status(200).json({"message": "Registro exitoso"}) 
+        else if (err.errors != null) {
+            const message = err.errors[Object.keys(err.errors)[0]]
+            res.status(200).json({message: message[Object.keys(message)[0]]})
+            return        
+        }
+        res.status(500).json({message: "Error al registrar"})
     })
 }).get('/api/father', (req, res) => {
     Father.find((err, result) => {
@@ -132,30 +108,21 @@ app.get('/api/categories', ensureToken,(req,res) => {
     
 })
 
-//SON REQUEST
 app.post('/api/son', (req, res) => {
     var newSon = new son();
     newSon.name = req.body.name
     newSon.grade = req.body.grade
     newSon.idFather = req.body.idFather
-    newSon.save((err) => {
-        if (err) {
-            console.log(err)
-            if (err.name == 'ValidationError') {
-                if (typeof err.errors.name != 'undefined') {
-                    return res.status(400).json({"message": err.errors.name.message})
-                }else if (typeof err.errors.grade != 'undefined') {
-                    return res.status(400).json({"message": err.errors.grade.message})
-                }else if (typeof err.errors.idFather != 'undefined') {
-                    return res.status(400).json({"message": err.errors.idFather.message})
-                }else  {
-                    return res.status(500).json({message: 'error interno'})
-                }
-            }
+    newSon.save().then(() => {
+        res.json({mensaje: "Registro exitoso"})
+    }).catch((err) => {
+        if (err.errors != null) {
+            const message = err.errors[Object.keys(err.errors)[0]]
+            res.status(200).json({message: message[Object.keys(message)[0]]})
+            return
         }
-        res.status(200).json({"message": "Registro exitoso"});
+        res.status(500).json({message: "Error al registrar"})
     })
-
 }).get('/api/son', ensureToken, (req, res) => {
     //comparar header token con el jwt generado
     jwt.verify((req.token), config.secret, (err) => {
