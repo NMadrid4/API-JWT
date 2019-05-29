@@ -27,6 +27,7 @@ app.get('/api/horary', (req, res) => {
     // })
     horary.findOne({idGrade: req.query.idGrade}, (err, result) => {
         if (err) {
+            
             res.sendStatus(500);
         }else {
             if (result != null) {
@@ -40,16 +41,35 @@ app.get('/api/horary', (req, res) => {
 }).post('/api/horary', (req, res) => {
     var myData = new horary(req.body);
     console.log(req.body)
-    myData.save((err) => {
-        if(err) {
-            res.json(err)
-            return
+    myData.save().then(() => {
+        res.json({mensaje: "registro"})
+    }).catch((err) => {
+        if (err.errors != null) {
+            const message = err.errors[Object.keys(err.errors)[0]]
+            res.json({message: message[Object.keys(message)[0]]})
+        }else {
+            res.status(500).json({message: "Error al registrar"})
         }
-            res.json({mensaje: "registro"})
-
+        
     })
+   
     
 })
+
+
+// myData.save((err) => {
+//     if(err) {
+//         var keySaved = ""
+//         for (var key in err.errors) {
+//             keySaved = key
+//         } 
+//         console.log(keySaved)
+//         console.log(err.errors.days)
+//         return
+//     }
+//         res.json({mensaje: "registro"})
+
+// })
 
 app.post('/api/father', (req, res) => {
     var newFather = new Father();
